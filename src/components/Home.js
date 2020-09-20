@@ -1,6 +1,8 @@
 import {
     Card, CardHeader, CardContent, Grid, IconButton, Divider, LinearProgress,
-    List, ListItem, ListItemText
+    List, ListItem, ListItemText,
+    GridList, GridListTile
+
 } from '@material-ui/core';
 import React, { Component, useEffect, useRef, useState } from 'react';
 import { FixedSizeList } from 'react-window';
@@ -18,15 +20,11 @@ import { createWorker, RecognizeResult } from 'tesseract.js';
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        flexGrow: 1,
+
         display: 'flex',
         minHeight: '50vh',
         maxWidth: '100%',
         padding: theme.spacing(2),
-
-    },
-    rootskeleton: {
-        flexGrow: 1,
 
     },
 
@@ -39,10 +37,11 @@ const useStyles = makeStyles((theme) => ({
     },
     pipeline: {
         display: 'flex',
-        minHeight: '100vh',
+        minHeight: '50vh',
         maxWidth: '100%',
         padding: theme.spacing(2),
-        margin: theme.spacing(2),
+        backgroundColor: '#cccccc'
+
     },
     cardroot: {
         maxWidth: 400,
@@ -50,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     },
 
     cardrootprocessing: {
-        backgroundColor: 'whitesmoke'
+        backgroundColor: 'white',
     },
     demo: {
         backgroundColor: theme.palette.background.paper,
@@ -58,6 +57,17 @@ const useStyles = makeStyles((theme) => ({
     title: {
         margin: theme.spacing(4, 0, 2),
     },
+    gridList: {
+        width: '100%',
+        height: 500,
+    },
+    paragraphroot: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        backgroundColor: theme.palette.background.paper,
+      },
 
 
 }));
@@ -185,6 +195,7 @@ function HomeComponent() {
 
     return (
         <>
+            {/* Banner */}
             <Grid container direction="column" alignItems='center' justify="center" className={classes.root}>
                 <Grid item>
                     <Typography variant="h2" gutterBottom >ISAC MLR Solution</Typography>
@@ -206,6 +217,8 @@ function HomeComponent() {
 
 
             </Grid>
+
+            {/* Features */}
             <Grid
                 container
                 direction="row"
@@ -273,16 +286,15 @@ function HomeComponent() {
                 </Grid>
             </Grid>
 
+            {/* pipeline */}
             <Grid
                 container
-                direction="row"
-
+                direction="column"
                 className={classes.pipeline}
                 spacing={3}
-                style={{ padding: 2, }}
             >
 
-                <Grid item alignItems='center' justify="center" >
+                <Grid item>
 
                     <Card className={classes.cardrootprocessing}>
                         <CardHeader
@@ -292,7 +304,9 @@ function HomeComponent() {
 
                         </CardHeader>
                         <CardContent>
-                            <input type="file" name="file" onChange={fileChangedHandler} />
+                            <input type="file" name="file"
+                                accept="image/*"
+                                onChange={fileChangedHandler} />
                             <button onClick={uploadHandler}>Upload!</button>
 
                         </CardContent>
@@ -302,10 +316,11 @@ function HomeComponent() {
                         </CardContent>
 
                         <div ref={canvasContainer}>
-                            <canvas ref={canvasRef} />
+                            <canvas ref={canvasRef} height={0} width={0} />
                         </div>
 
                     </Card>
+
                 </Grid>
 
 
@@ -320,25 +335,30 @@ function HomeComponent() {
                             </CardHeader>
                             <CardContent className={classes.demo}>
                                 <Typography variant="h6" className={classes.title}>  Paragraphs </Typography>
+                                <div className={classes.paragraphroot}>
+                                    <GridList cellHeight={160} className={classes.gridList} cols={3}>
+                                        {paragraphs.map((row) => (
+                                            <GridListTile >
+                                                <ListItem
+                                                    button
+                                                    onClick={(event) => handleListItemClick(event, row)}
+                                                    style={{height: 'auto'}}
+                                                >
+                                                    <ListItemText primary={row.text}
+                                                        secondary={row.confidence.toFixed(2) + '%'} />
 
-                                <List component="p" >
-                                    {paragraphs.map((row) => (
-                                        <ListItem
-                                            button
-                                            onClick={(event) => handleListItemClick(event, row)}
-                                        >
-                                            <ListItemText primary={row.text}
-                                                secondary={row.confidence.toFixed(2) + '%'} />
+                                                </ListItem>
+                                            </GridListTile>
+                                        ))}
+                                    </GridList>
+                                </div>
 
-                                        </ListItem>
-                                    ))}
-                                </List>
 
                             </CardContent>
                             <CardContent className={classes.demo}>
                                 <Typography variant="h6" className={classes.title}>  Lines </Typography>
 
-                                <List component="p" >
+                                <List component="p" style={{ maxHeight: '100%', overflow: 'auto' }}>
                                     {lines.map((row) => (
                                         <ListItem
                                             button
@@ -367,11 +387,11 @@ function HomeComponent() {
 
                             >
                             </CardHeader>
-                            <Skeleton animation="wave" variant="rect"  />
+                            <Skeleton animation="wave" variant="rect" />
                             <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
                             <Skeleton animation="wave" variant="rect" />
                             <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
-                            <Skeleton animation="wave" variant="rect"  />
+                            <Skeleton animation="wave" variant="rect" />
                             <Skeleton animation="wave" variant="rect" />
                             <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
                             <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
