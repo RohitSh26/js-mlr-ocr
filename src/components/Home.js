@@ -3,10 +3,12 @@ import {
     List, ListItem, ListItemText
 } from '@material-ui/core';
 import React, { Component, useEffect, useRef, useState } from 'react';
+import { FixedSizeList } from 'react-window';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { ArrowForwardSharp, FlareSharp } from '@material-ui/icons';
+import Skeleton from '@material-ui/lab/Skeleton';
 
 import CanvasComponent from '../components/canvas'
 
@@ -21,6 +23,10 @@ const useStyles = makeStyles((theme) => ({
         minHeight: '50vh',
         maxWidth: '100%',
         padding: theme.spacing(2),
+
+    },
+    rootskeleton: {
+        flexGrow: 1,
 
     },
 
@@ -46,6 +52,12 @@ const useStyles = makeStyles((theme) => ({
     cardrootprocessing: {
         backgroundColor: 'whitesmoke'
     },
+    demo: {
+        backgroundColor: theme.palette.background.paper,
+    },
+    title: {
+        margin: theme.spacing(4, 0, 2),
+    },
 
 
 }));
@@ -66,16 +78,13 @@ function HomeComponent() {
     const [progress, setProgress] = useState(0.0);
     const [status, setStatus] = useState('Ready...');
 
-    const [result, setResult] = useState({});
+    const [result, setResult] = useState(null);
     const [lines, setLines] = useState([]);
+    const [paragraphs, setParagraphs] = useState([]);
 
     const fileChangedHandler = (event) => {
         setselectedFile(event.target.files[0]);
     }
-
-    useEffect(() => {
-
-    });
 
     const uploadHandler = async () => {
         console.log(selectedFile);
@@ -115,6 +124,7 @@ function HomeComponent() {
             console.log(data);
             setResult(data);
             setLines(data.lines);
+            setParagraphs(data.paragraphs);
         }
 
     }
@@ -265,13 +275,15 @@ function HomeComponent() {
 
             <Grid
                 container
-                direction="column"
+                direction="row"
 
                 className={classes.pipeline}
                 spacing={3}
                 style={{ padding: 2, }}
             >
+
                 <Grid item alignItems='center' justify="center" >
+
                     <Card className={classes.cardrootprocessing}>
                         <CardHeader
                             title={'Upload Image'}
@@ -284,6 +296,11 @@ function HomeComponent() {
                             <button onClick={uploadHandler}>Upload!</button>
 
                         </CardContent>
+                        <CardContent>
+                            <LinearProgress variant="determinate" value={progress} />
+                            <h4>{status}</h4>
+                        </CardContent>
+
                         <div ref={canvasContainer}>
                             <canvas ref={canvasRef} />
                         </div>
@@ -291,54 +308,83 @@ function HomeComponent() {
                     </Card>
                 </Grid>
 
-                <Grid item>
-                    <Card className={classes.cardrootprocessing}>
-                        <CardHeader
-                            title={'Processing'}
-                            subheader={'Performing OCR'}
-                        >
 
-                        </CardHeader>
+                {(result) ?
+                    <Grid item>
 
-                        <LinearProgress variant="determinate" value={progress} />
-                        <CardContent>
-                            <h4>{status}</h4>
-                        </CardContent>
-                        <CardContent>
-                            <p>Text Confidence = {result.confidence} %</p>
-                            <p>{result.text}</p>
-                        </CardContent>
-                    </Card>
-                </Grid>
+                        <Card className={classes.cardrootprocessing}>
+                            <CardHeader
+                                title={'Processing Result'}
 
+                            >
+                            </CardHeader>
+                            <CardContent className={classes.demo}>
+                                <Typography variant="h6" className={classes.title}>  Paragraphs </Typography>
 
-                <Grid item>
-                    <Card className={classes.cardrootprocessing}>
-                        <CardHeader
-                            title={'Results'}
-                            subheader={'Find results'}
-                        >
+                                <List component="p" >
+                                    {paragraphs.map((row) => (
+                                        <ListItem
+                                            button
+                                            onClick={(event) => handleListItemClick(event, row)}
+                                        >
+                                            <ListItemText primary={row.text}
+                                                secondary={row.confidence.toFixed(2) + '%'} />
 
-                        </CardHeader>
-                        {result ?
+                                        </ListItem>
+                                    ))}
+                                </List>
 
-                            <CardContent>
-                                <List component="nav" aria-label="secondary mailbox folder">
+                            </CardContent>
+                            <CardContent className={classes.demo}>
+                                <Typography variant="h6" className={classes.title}>  Lines </Typography>
+
+                                <List component="p" >
                                     {lines.map((row) => (
                                         <ListItem
                                             button
                                             onClick={(event) => handleListItemClick(event, row)}
                                         >
-                                            <ListItemText primary={row.text} />
+                                            <ListItemText primary={row.text}
+                                                secondary={row.confidence.toFixed(2) + '%'} />
+
                                         </ListItem>
                                     ))}
                                 </List>
+
                             </CardContent>
-                            :
-                            <p>'results wil appear here..'</p>
-                        }
-                    </Card>
-                </Grid>
+                        </Card>
+                        <Card className={classes.cardrootprocessing}>
+
+
+                        </Card>
+                    </Grid>
+
+                    :
+                    <Grid item>
+                        <Card className={classes.cardrootprocessing}>
+                            <CardHeader
+                                title={'Processing Result'}
+
+                            >
+                            </CardHeader>
+                            <Skeleton animation="wave" variant="rect"  />
+                            <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
+                            <Skeleton animation="wave" variant="rect" />
+                            <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
+                            <Skeleton animation="wave" variant="rect"  />
+                            <Skeleton animation="wave" variant="rect" />
+                            <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
+                            <Skeleton animation="wave" height={10} style={{ marginBottom: 6 }} />
+                            <Skeleton animation="wave" variant="rect" />
+                        </Card>
+
+
+                    </Grid >
+
+
+
+
+                }
             </Grid>
 
         </>
