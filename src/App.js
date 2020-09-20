@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import HomeComponent from "./components/Home";
-import CanvasComponent from './components/canvas'
+
 import HeaderCompnent from './Layout/Header'
 
 
@@ -29,6 +29,8 @@ function App() {
 
   const classes = useStyles();
 
+  
+
   return (
     <div className="App">
       <HeaderCompnent />
@@ -38,7 +40,9 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/' component={HomeComponent}>
+          
           </Route>
+         
         </Switch>
       </Router>
 

@@ -1,9 +1,13 @@
 import { Card, CardHeader, CardContent, Grid, IconButton, Divider } from '@material-ui/core';
-import React, { Component } from 'react';
+import React, { Component, useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { ArrowForwardSharp, FlareSharp } from '@material-ui/icons';
+
+import CanvasComponent from '../components/canvas'
+
+import testimge from '../static/img/testcase1.jpg'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,16 +26,77 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2),
         backgroundColor: '#2e2e38'
     },
+    pipeline: {
+        display: 'flex',
+        minHeight: '100vh',
+        maxWidth: '100%',
+        padding: theme.spacing(2),
+        margin: theme.spacing(2),
+    },
     cardroot: {
         maxWidth: 400,
         height: 250
     },
 
+    cardrootprocessing: {
+        backgroundColor: 'whitesmoke'
+    },
+
 
 }));
 
+
+
 function HomeComponent() {
     const classes = useStyles();
+
+    const [selectedFile, setselectedFile] = useState(null);
+    const [image, setImage] = useState(null);
+    const [isUploadComplete, setIsUploadComplete] = useState(false);
+    const [canvasRef, setCanvasRef] = useState(useRef(null));
+    const [canvasContainer, setCanvasContainer] = useState(useRef(null));
+
+    const fileChangedHandler = (event) => {
+        setselectedFile(event.target.files[0]);
+    }
+
+    useEffect(() => {
+
+    });
+
+    const uploadHandler = () => {
+        console.log(selectedFile);
+
+        setImage(selectedFile);
+
+        setIsUploadComplete(true);
+
+        setCanvasRef(canvasRef.current);
+        const context = canvasRef.current.getContext('2d');
+
+        const image = new Image();
+        image.onload = () => drawImageScaled(context, image);
+        image.src = URL.createObjectURL(selectedFile);
+
+    }
+
+    // tslint:disable-next-line:no-any
+    const drawImageScaled = (ctx, img) => {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const hRatio = width / img.width;
+        const vRatio = height / img.height;
+        var     ratio = Math.min(hRatio, vRatio);
+        if (ratio > 1) {
+            ratio = 1;
+        }
+        ctx.canvas.width = img.width * ratio;
+        ctx.canvas.height = img.height * ratio;
+
+        ctx.clearRect(0, 0, img.width, img.width);
+        ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width * ratio, img.height * ratio);
+    }
 
     return (
         <>
@@ -42,9 +107,16 @@ function HomeComponent() {
                 <Grid item>
                     <Typography variant="subtitle1" gutterBottom >Upload documents, perform MLR Compliance and get results.</Typography>
                 </Grid>
-                <IconButton edge="end" className={classes.menuButton} color="inherit" aria-label="menu">
-                    <ArrowForwardSharp />
-                </IconButton>
+                <Grid item>
+                    <IconButton edge="end" className={classes.menuButton} color="inherit" aria-label="menu">
+                        <ArrowForwardSharp />
+                    </IconButton>
+                </Grid>
+                {/* <Grid item>
+                    <input type="file" name="file" onChange={fileChangedHandler} />
+                    <button onClick={uploadHandler}>Upload!</button>
+                    <canvas ref={canvasRef} width={500} height={500} />
+                </Grid> */}
 
 
 
@@ -115,6 +187,57 @@ function HomeComponent() {
 
                 </Grid>
             </Grid>
+
+            <Grid
+                container
+                direction="row"
+
+                className={classes.pipeline}
+                spacing={3}
+                style={{ padding: 2, }}
+            >
+                <Grid item alignItems='center' justify="center" >
+                    <Card className={classes.cardrootprocessing}>
+                        <CardHeader
+                            title={'Analytics'}
+                            subheader={'Display analytics for MLR'}
+                        >
+
+                        </CardHeader>
+                        <CardContent>
+                            <input type="file" name="file" onChange={fileChangedHandler} />
+                            <button onClick={uploadHandler}>Upload!</button>
+
+                        </CardContent>
+                        <div ref={canvasContainer}>
+                            <canvas ref={canvasRef} />
+                        </div>
+
+                    </Card>
+                </Grid>
+
+                <Grid item>
+                    <Card className={classes.cardrootprocessing}>
+                        <CardHeader
+                            title={'Analytics'}
+                            subheader={'Display analytics for MLR'}
+                        >
+
+                        </CardHeader>
+                    </Card>
+                </Grid>
+                <Grid item>
+                    <Card className={classes.cardrootprocessing}>
+                        <CardHeader
+                            title={'Analytics'}
+                            subheader={'Display analytics for MLR'}
+                        >
+
+                        </CardHeader>
+                    </Card>
+                </Grid>
+            </Grid>
+
         </>
     );
 }
