@@ -1,4 +1,7 @@
-import { Card, CardHeader, CardContent, Grid, IconButton, Divider } from '@material-ui/core';
+import {
+    Card, CardHeader, CardContent, Grid, IconButton, Divider, LinearProgress,
+    List, ListItem, ListItemText
+} from '@material-ui/core';
 import React, { Component, useEffect, useRef, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
@@ -8,6 +11,8 @@ import { ArrowForwardSharp, FlareSharp } from '@material-ui/icons';
 import CanvasComponent from '../components/canvas'
 
 import testimge from '../static/img/testcase1.jpg'
+
+import { createWorker, RecognizeResult } from 'tesseract.js';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -55,6 +60,14 @@ function HomeComponent() {
     const [isUploadComplete, setIsUploadComplete] = useState(false);
     const [canvasRef, setCanvasRef] = useState(useRef(null));
     const [canvasContainer, setCanvasContainer] = useState(useRef(null));
+    const [context, setContext] = useState(null);
+    var [ratio, setRatio] = useState(null);
+
+    const [progress, setProgress] = useState(0.0);
+    const [status, setStatus] = useState('Ready...');
+
+    const [result, setResult] = useState({});
+    const [lines, setLines] = useState([]);
 
     const fileChangedHandler = (event) => {
         setselectedFile(event.target.files[0]);
@@ -64,7 +77,7 @@ function HomeComponent() {
 
     });
 
-    const uploadHandler = () => {
+    const uploadHandler = async () => {
         console.log(selectedFile);
 
         setImage(selectedFile);
@@ -72,12 +85,42 @@ function HomeComponent() {
         setIsUploadComplete(true);
 
         setCanvasRef(canvasRef.current);
-        const context = canvasRef.current.getContext('2d');
+        const ctx = canvasRef.current.getContext('2d');
+
+        setContext(ctx);
 
         const image = new Image();
-        image.onload = () => drawImageScaled(context, image);
+        image.onload = () => drawImageScaled(ctx, image);
         image.src = URL.createObjectURL(selectedFile);
 
+        setImage(image);
+
+        var worker = createWorker({
+            logger: m => {
+                setProgress(m.progress * 100);
+                setStatus(m.status);
+            } //setState({ status: m.status, progress: m.progress * 100 }),
+        });
+
+        await worker.load();
+        await worker.loadLanguage('eng');
+        await worker.initialize('eng');
+
+        const { data } = await worker.recognize(selectedFile);
+        var listOfBannedWords = ['CRM', 'sales lead', 'brown', 'solutions', 'solution'];
+        var foundBannedWords = [];
+
+        if (data) {
+            setStatus('OCR Complete.')
+            console.log(data);
+            setResult(data);
+            setLines(data.lines);
+        }
+
+    }
+
+    const handleListItemClick = (event, line) => {
+        drawBBox(line.bbox);
     }
 
     // tslint:disable-next-line:no-any
@@ -87,7 +130,7 @@ function HomeComponent() {
 
         const hRatio = width / img.width;
         const vRatio = height / img.height;
-        var     ratio = Math.min(hRatio, vRatio);
+        var ratio = Math.min(hRatio, vRatio);
         if (ratio > 1) {
             ratio = 1;
         }
@@ -96,7 +139,39 @@ function HomeComponent() {
 
         ctx.clearRect(0, 0, img.width, img.width);
         ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, img.width * ratio, img.height * ratio);
+
+        setRatio(ratio);
     }
+
+    const redrawImage = () => {
+        const ctx = canvasRef.current.getContext('2d');
+        console.log(image);
+        if (image) {
+
+            drawImageScaled(ctx, image);
+        }
+    }
+
+    const drawBBox = (bbox) => {
+        if (bbox) {
+            redrawImage();
+
+            if (ratio === null) {
+                throw new Error('ratio not set');
+            }
+
+            context.beginPath();
+            context.moveTo(bbox.x0 * ratio, bbox.y0 * ratio);
+            context.lineTo(bbox.x1 * ratio, bbox.y0 * ratio);
+            context.lineTo(bbox.x1 * ratio, bbox.y1 * ratio);
+            context.lineTo(bbox.x0 * ratio, bbox.y1 * ratio);
+            context.closePath();
+            context.strokeStyle = '#bada55';
+            context.lineWidth = 2;
+            context.stroke();
+        }
+    }
+
 
     return (
         <>
@@ -190,7 +265,7 @@ function HomeComponent() {
 
             <Grid
                 container
-                direction="row"
+                direction="column"
 
                 className={classes.pipeline}
                 spacing={3}
@@ -199,8 +274,8 @@ function HomeComponent() {
                 <Grid item alignItems='center' justify="center" >
                     <Card className={classes.cardrootprocessing}>
                         <CardHeader
-                            title={'Analytics'}
-                            subheader={'Display analytics for MLR'}
+                            title={'Upload Image'}
+                            subheader={'Upload image to perfom MLR'}
                         >
 
                         </CardHeader>
@@ -219,21 +294,49 @@ function HomeComponent() {
                 <Grid item>
                     <Card className={classes.cardrootprocessing}>
                         <CardHeader
-                            title={'Analytics'}
-                            subheader={'Display analytics for MLR'}
+                            title={'Processing'}
+                            subheader={'Performing OCR'}
                         >
 
                         </CardHeader>
+
+                        <LinearProgress variant="determinate" value={progress} />
+                        <CardContent>
+                            <h4>{status}</h4>
+                        </CardContent>
+                        <CardContent>
+                            <p>Text Confidence = {result.confidence} %</p>
+                            <p>{result.text}</p>
+                        </CardContent>
                     </Card>
                 </Grid>
+
+
                 <Grid item>
                     <Card className={classes.cardrootprocessing}>
                         <CardHeader
-                            title={'Analytics'}
-                            subheader={'Display analytics for MLR'}
+                            title={'Results'}
+                            subheader={'Find results'}
                         >
 
                         </CardHeader>
+                        {result ?
+
+                            <CardContent>
+                                <List component="nav" aria-label="secondary mailbox folder">
+                                    {lines.map((row) => (
+                                        <ListItem
+                                            button
+                                            onClick={(event) => handleListItemClick(event, row)}
+                                        >
+                                            <ListItemText primary={row.text} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            </CardContent>
+                            :
+                            <p>'results wil appear here..'</p>
+                        }
                     </Card>
                 </Grid>
             </Grid>
