@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import HomeComponent from "./components/Home";
-
+import MLRComponent from "./components/MLR"
 import HeaderCompnent from './Layout/Header'
 
 
@@ -40,6 +40,9 @@ function App() {
       <Router>
         <Switch>
           <Route exact path='/' component={HomeComponent}>
+          
+          </Route>
+          <Route exact path='/MLR' component={MLRComponent}>
           
           </Route>
          
