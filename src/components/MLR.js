@@ -1,6 +1,6 @@
 import {
     Card, CardHeader, CardContent, Grid, Button, TextField, LinearProgress,
-    List, ListItem, ListItemText,
+    List, ListItem, ListItemText, Divider,
     GridList, GridListTile
 
 } from '@material-ui/core';
@@ -54,6 +54,9 @@ const useStyles = makeStyles((theme) => ({
         minWidth: 400,
         width: 500,
     },
+    inline: {
+        display: 'inline',
+    },
 }));
 
 
@@ -77,7 +80,7 @@ function MLRComponent() {
     const [paragraphs, setParagraphs] = useState([]);
 
     const [question, setQuestion] = useState('');
-    const [answers, setAnswers] = useState('');
+    const [answers, setAnswers] = useState([]);
 
     const fileChangedHandler = (event) => {
         setselectedFile(event.target.files[0]);
@@ -193,6 +196,7 @@ function MLRComponent() {
         // Finding the answers
         const answers = await model.findAnswers(question, result.text);
         console.log(answers);
+        setAnswers(answers);
     }
 
 
@@ -228,10 +232,6 @@ function MLRComponent() {
                             <h4>{status}</h4>
                         </CardContent>
 
-                        <div ref={canvasContainer}>
-                            <canvas ref={canvasRef} height={0} width={0} />
-                        </div>
-
                     </Card>
 
                 </Grid>
@@ -247,7 +247,7 @@ function MLRComponent() {
 
                         </CardHeader>
                         <CardContent>
-                            {(result) ? <p>{result.text}</p> : 'text to appear here...'}
+                            {(result) ? paragraphs.map((row) => (<p>{row.text}</p>)) : 'text to appear here...'}
                         </CardContent>
                         <CardContent>
                             <TextField
@@ -269,10 +269,44 @@ function MLRComponent() {
                             </Button>
 
                         </CardContent>
+                        <CardContent>
+                            <List>
+                                {(answers.length > 0) ?
+                                    answers.map((ans) => (
 
-                        <div ref={canvasContainer}>
-                            <canvas ref={canvasRef} height={0} width={0} />
-                        </div>
+                                        <ListItem alignItems="flex-start">
+                                            <ListItemText
+                                                primary={ans.text}
+                                                secondary={
+                                                    <React.Fragment>
+                                                        <Typography
+                                                            component="span"
+                                                            variant="body2"
+                                                            className={classes.inline}
+                                                            color="textPrimary"
+                                                        >
+                                                        {/* {ans.score} */}
+                                                        </Typography>
+                                                        
+                                                    </React.Fragment>
+                                                }
+                                            />
+                                        </ListItem>
+
+                                    ))
+
+                                    :
+                                    <p>answers to appear here...</p>
+                                }
+                            </List>
+                        </CardContent>
+
+                        <CardContent>
+
+                            <div ref={canvasContainer}>
+                                <canvas ref={canvasRef} height={0} width={0} />
+                            </div>
+                        </CardContent>
 
                     </Card>
 

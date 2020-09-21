@@ -76,14 +76,6 @@ function HomeComponent() {
                         <ArrowForwardSharp />
                     </IconButton>
                 </Grid>
-                {/* <Grid item>
-                    <input type="file" name="file" onChange={fileChangedHandler} />
-                    <button onClick={uploadHandler}>Upload!</button>
-                    <canvas ref={canvasRef} width={500} height={500} />
-                </Grid> */}
-
-
-
             </Grid>
 
             {/* Features */}
