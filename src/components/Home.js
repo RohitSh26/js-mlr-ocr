@@ -57,8 +57,6 @@ const useStyles = makeStyles((theme) => ({
 
 }));
 
-
-
 function HomeComponent() {
     const classes = useStyles();
 

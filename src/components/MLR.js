@@ -1,9 +1,13 @@
 import {
     Card, CardHeader, CardContent, Grid, Button, TextField, LinearProgress,
-    List, ListItem, ListItemText, Divider,
-    GridList, GridListTile
+    List, ListItem, ListItemText,
+    GridList, GridListTile, IconButton, Fab, CardActionArea
 
 } from '@material-ui/core';
+import PostAddIcon from '@material-ui/icons/PostAdd';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
+import KeyboardArrowRightSharp from '@material-ui/icons/KeyboardArrowRightSharp';
+
 import React, { useRef, useState } from 'react';
 
 import { makeStyles } from '@material-ui/core/styles';
@@ -18,7 +22,8 @@ import { createWorker, RecognizeResult } from 'tesseract.js';
 import * as tf from '@tensorflow/tfjs';
 import * as qna from '@tensorflow-models/qna';
 
-console.log('Using TensorFlow backend: ', tf.getBackend());
+import Highlighter from "react-highlight-words";
+
 
 const useStyles = makeStyles((theme) => ({
     pipeline: {
@@ -81,6 +86,8 @@ function MLRComponent() {
 
     const [question, setQuestion] = useState('');
     const [answers, setAnswers] = useState([]);
+
+    const [bannedWords, setbannedWords] = useState([]);
 
     const fileChangedHandler = (event) => {
         setselectedFile(event.target.files[0]);
@@ -220,17 +227,48 @@ function MLRComponent() {
                         >
 
                         </CardHeader>
-                        <CardContent>
-                            <input type="file" name="file"
-                                accept="image/*"
-                                onChange={fileChangedHandler} />
-                            <button onClick={uploadHandler}>Upload!</button>
 
-                        </CardContent>
+
                         <CardContent>
                             <LinearProgress variant="determinate" value={progress} />
                             <h4>{status}</h4>
+
+                            <input
+                                accept="image/*"
+                                className={classes.input}
+                                id="contained-button-file"
+                                onChange={fileChangedHandler}
+                                type="file"
+                                style={{ display: 'none' }}
+
+                            />
+                            <label htmlFor="contained-button-file">
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    component="span"
+                                    endIcon={<CloudUploadIcon />}
+
+                                    style={{ margin: 10 }}
+                                >
+                                    Upload
+                            </Button>
+                            </label>
+
+                            <Button
+                                variant="contained"
+                                color="inherit"
+                                className={classes.button}
+                                endIcon={<KeyboardArrowRightSharp />}
+                                onClick={uploadHandler}
+
+                                style={{ margin: 10 }}
+                            >
+                                Submit
+                            </Button>
                         </CardContent>
+
+
 
                     </Card>
 
@@ -247,7 +285,17 @@ function MLRComponent() {
 
                         </CardHeader>
                         <CardContent>
-                            {(result) ? paragraphs.map((row) => (<p>{row.text}</p>)) : 'text to appear here...'}
+                            {(result) ? paragraphs.map((row) => (
+                                <p>
+                                    <Highlighter
+
+                                        searchWords={[]}
+                                        autoEscape={true}
+                                        textToHighlight={row.text}
+                                    />
+
+                                </p>
+                            )) : 'text to appear here...'}
                         </CardContent>
                         <CardContent>
                             <TextField
@@ -270,6 +318,7 @@ function MLRComponent() {
 
                         </CardContent>
                         <CardContent>
+
                             <List>
                                 {(answers.length > 0) ?
                                     answers.map((ans) => (
@@ -285,9 +334,9 @@ function MLRComponent() {
                                                             className={classes.inline}
                                                             color="textPrimary"
                                                         >
-                                                        {/* {ans.score} */}
+                                                            {/* {ans.score} */}
                                                         </Typography>
-                                                        
+
                                                     </React.Fragment>
                                                 }
                                             />
@@ -301,15 +350,25 @@ function MLRComponent() {
                             </List>
                         </CardContent>
 
+
+
+                    </Card>
+
+                </Grid>
+                <Grid item>
+                    <Card className={classes.cardrootprocessing}>
+                        <CardHeader
+                            title={'Document'}
+
+                        >
+                        </CardHeader>
                         <CardContent>
 
                             <div ref={canvasContainer}>
                                 <canvas ref={canvasRef} height={0} width={0} />
                             </div>
                         </CardContent>
-
                     </Card>
-
                 </Grid>
 
                 {(result) ?
