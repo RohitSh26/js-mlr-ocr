@@ -1,10 +1,10 @@
 import {
     Card, CardHeader, CardContent, Grid, Button, TextField, LinearProgress,
-    List, ListItem, ListItemText,
-    GridList, GridListTile, IconButton, Fab, CardActionArea
+    List, ListItem, ListItemText, Divider,
+    GridList, GridListTile
 
 } from '@material-ui/core';
-import PostAddIcon from '@material-ui/icons/PostAdd';
+
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import KeyboardArrowRightSharp from '@material-ui/icons/KeyboardArrowRightSharp';
 
@@ -322,7 +322,7 @@ function MLRComponent() {
                             <List>
                                 {(answers.length > 0) ?
                                     answers.map((ans) => (
-
+                                        <>
                                         <ListItem alignItems="flex-start">
                                             <ListItemText
                                                 primary={ans.text}
@@ -341,7 +341,8 @@ function MLRComponent() {
                                                 }
                                             />
                                         </ListItem>
-
+                                        <Divider />
+                                        </>
                                     ))
 
                                     :

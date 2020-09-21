@@ -47,7 +47,7 @@ function HeaderComponent() {
                         <HomeSharp />
                     </IconButton>
                     <Typography variant="h6" color="inherit">
-                    <img src={logo} className={classes.logo} />
+                    <img src={logo} alt={'logo'} className={classes.logo} />
                         ISAC MLR
     </Typography>
                 </Toolbar>
