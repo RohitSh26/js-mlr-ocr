@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core';
 
 import { ArrowForwardSharp } from '@material-ui/icons';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -72,7 +73,14 @@ function HomeComponent() {
                     <Typography variant="subtitle1" gutterBottom >Upload documents, perform MLR Compliance and get results.</Typography>
                 </Grid>
                 <Grid item>
-                    <IconButton edge="end" className={classes.menuButton} color="inherit" aria-label="menu">
+                    <IconButton 
+                        edge="end" 
+                        className={classes.menuButton} 
+                        color="inherit" 
+                        aria-label="menu"
+                        to="/MLR"
+                        component={Link}
+                        >
                         <ArrowForwardSharp />
                     </IconButton>
                 </Grid>
@@ -120,7 +128,9 @@ function HomeComponent() {
 
                         <CardContent>
                             <Typography variant="body2" color="textSecondary" component="p">
-                                NLP is performed on each paragraphs and lines to understand text. This helps in identifying MLR compliance results.
+                                NLP is performed on each paragraphs and lines to understand text. 
+                                Ask questions in natural language.
+                                This helps in identifying MLR compliance results.
         </Typography>
                         </CardContent>
                     </Card>
