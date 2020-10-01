@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import HomeSharp from '@material-ui/icons/HomeSharp';
 
-import logo from '../static/img/EYLogo.png'
+// import logo from '../static/img/EYLogo.png'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -47,8 +47,8 @@ function HeaderComponent() {
                         <HomeSharp />
                     </IconButton>
                     <Typography variant="h6" color="inherit">
-                    <img src={logo} alt={'logo'} className={classes.logo} />
-                        ISAC MLR
+                    <img src={'logo'} alt={'logo'} className={classes.logo} />
+                        OCR
     </Typography>
                 </Toolbar>
             </AppBar>

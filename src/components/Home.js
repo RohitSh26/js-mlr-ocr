@@ -65,7 +65,7 @@ function HomeComponent() {
             {/* Banner */}
             <Grid container direction="column" alignItems='center' justify="center" className={classes.root}>
                 <Grid item>
-                    <Typography variant="h2" gutterBottom >ISAC MLR Solution</Typography>
+                    <Typography variant="h2" gutterBottom >OCR Solution</Typography>
                 </Grid>
                 <Grid item>
                     <Typography variant="subtitle1" gutterBottom >Upload documents, perform MLR Compliance and get results.</Typography>
